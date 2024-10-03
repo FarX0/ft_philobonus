@@ -24,21 +24,51 @@ void	philo_eat(t_philo *p)
 {
 	if (p->data->number_of_philosophers == 1)
 		alone(p);
+	if (get_game(p->data, 0) == 1)
+	{
+		sem_post(p->data->game_stop);
+		return ;
+	}
+	if(check_meals(p) == 1)
+	{
+		while (get_game(p->data, 0) != 1)
+			p->last_meal = get_current_time();
+		return ;
+	}
 	sem_wait(p->data->forks);
+	if (get_game(p->data, 0) == 1)
+	{
+		sem_post(p->data->game_stop);
+		sem_post(p->data->forks);
+		return ;
+	}
 	ft_mutex_write(p, "took fork.");
 	sem_wait(p->data->forks);
+	if (get_game(p->data, 0) == 1)
+	{
+		sem_post(p->data->game_stop);
+		sem_post(p->data->forks);
+		sem_post(p->data->forks);
+		return ;
+	}
 	ft_mutex_write(p, "took fork.");
 	ft_mutex_write(p, "is eating.");
 	p->last_meal = get_current_time();
-	if(check_meals(p) == 1)
-	{
-		get_game(p->data, 1);
-		return ;
-	}
 	ft_usleep(p->data->time_to_eat);
 	sem_post(p->data->forks);
 	sem_post(p->data->forks);
+	if (get_game(p->data, 0) == 1)
+	{
+		sem_post(p->data->game_stop);
+		return ;
+	}
+	p->meals_eaten++;
 	philo_sleep(p);
+	if (get_game(p->data, 0) == 1)
+	{
+		sem_post(p->data->game_stop);
+		return ;
+	}
 	ft_mutex_write(p, "is thinking.");
 }
 

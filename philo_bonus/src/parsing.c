@@ -74,7 +74,7 @@ t_data	*parse_arguments(int argc, char *argv[])
 	if (!data)
 		return (free_all(data, "Error\n allocation failed\n"));
 	data->first_philo = NULL;
-	data->game_over = 1;
+	data->game_over = 0;
 	data = load_arguments(data, argv, argc);
 	if (data == NULL) {
 		return NULL;

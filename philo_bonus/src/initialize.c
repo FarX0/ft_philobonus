@@ -81,9 +81,11 @@ void	semaphore_init(t_data *data)
 	sem_unlink("bool_n");
 	data->write_lock = sem_open("write_lock", O_CREAT, 0644, 1);
 	data->forks = sem_open("forks", O_CREAT, 0644, data->number_of_philosophers);
-	data->food = sem_open("food", O_CREAT, 0644, data->number_of_philosophers);
+	data->food = sem_open("food", O_CREAT, 0644, 1);
 	data->game_stop = sem_open("game_stop", O_CREAT, 0644, 1);
 	data->bool_n = sem_open("bool_n", O_CREAT, 0644, 1);
+	sem_wait(data->game_stop);
+	sem_wait(data->food);
 }
 
 /* 

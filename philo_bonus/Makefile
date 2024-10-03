@@ -1,4 +1,4 @@
-NAME		= philo
+NAME		= philo_bonus
 
 SRC = src/main.c \
 	src/parsing.c \

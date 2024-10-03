@@ -41,7 +41,8 @@ typedef struct s_philo
 	struct s_philo	*right_philo;
 	struct s_philo	*left_philo;
 	struct s_data	*data;
-	pthread_t		game_stop;
+	pthread_t		monitor;
+	pthread_t		philo_stop;
 	pid_t			pid;
 	// t_fork			*r_fork;
 	// t_fork			*l_fork;
@@ -77,8 +78,6 @@ t_data	*initialize_table(t_data *data);
 void	display_table(t_data *data);
 
 void	*free_all(t_data *data, char *error);
-
-int		create_philo_routine(t_philo *p);
 
 void	ft_mutex_write(t_philo *p, char *str);
 

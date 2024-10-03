@@ -21,46 +21,38 @@
 	pthread_mutex_unlock(p->philo_lock);
 	return (i);
 }*/
-	// if (data->meals_count == -1)
-	// 	return (0);
-	// p = data->first_philo;
-	// if (check_meal(p))
-	// 	return (0);
-	// if (p->right_philo)
-	// 	p = p->right_philo;
-	// while (p != data->first_philo)
-	// {
-	// 	if (check_meal(p))
-	// 		return (0);
-	// 	if (p->right_philo)
-	// 		p = p->right_philo;
-	// }
+// if (data->meals_count == -1)
+// 	return (0);
+// p = data->first_philo;
+// if (check_meal(p))
+// 	return (0);
+// if (p->right_philo)
+// 	p = p->right_philo;
+// while (p != data->first_philo)
+// {
+// 	if (check_meal(p))
+// 		return (0);
+// 	if (p->right_philo)
+// 		p = p->right_philo;
+// }
 
-int	check_meals(t_philo *p)
+int check_meals(t_philo *p)
 {
 	if (p->data->meals_count == -1)
 		return (0);
 	if (p->meals_eaten < p->data->meals_count)
 		return (0);
-	if (p->meals_eaten == p->data->meals_count)
-	{
-		ft_mutex_write(p, "is satisfied");
-		sem_post(p->data->food);
-		return (1);
-	}
+	sem_post(p->data->food);
 	return (1);
 }
 
-int	check_death(t_philo *p)
+int check_death(t_philo *p)
 {
-	int			i;
+	int i;
 
-	sem_wait(p->data->bool_n);
 	i = ((int)(get_current_time() - p->last_meal) >= p->data->time_to_die + 5);
-	sem_post(p->data->bool_n);
 	return (i);
 }
-
 
 /* int	check_death(t_philo *p)
 {
@@ -80,36 +72,34 @@ int	check_death(t_philo *p)
 	return (i);
 } */
 
-t_philo	*check_philo(t_data *data)
+void *monitor(void *data)
 {
-	t_philo	*p;
-
-	p = data->first_philo;
-	if (check_death(p))
-		return (p);
-	if (p->right_philo)
-		p = p->right_philo;
-	while (p != data->first_philo)
-	{
-		if (check_death(p))
-			return (p);
-		if (p->right_philo)
-			p = p->right_philo;
-	}
-	return (NULL);
-}
-
-void	*monitor(void *data)
-{
-	t_philo	*p;
+	t_philo *p;
+	int i;
 
 	p = (t_philo *)data;
 	while (1)
 	{
+		if (get_game(p->data, 0) == 1)
+		{
+			sem_post(p->data->game_stop);
+			return (NULL);
+		}
 		if (check_death(p))
 		{
-			ft_mutex_write(p, "died");
+			sem_post(p->data->game_stop);
+			sem_wait(p->data->bool_n);
+			if (p->data->game_over == 0)
+			{			
+				sem_wait(p->data->write_lock);
+				printf("[%zu] %d died\n", (get_current_time() - p->birthday), p->id);
+				sem_post(p->data->write_lock);
+			}
+			sem_post(p->data->bool_n);
 			get_game(p->data, 1);
+			i = 0;
+			while (i < p->data->meals_count)
+				sem_post(p->data->food);
 			return (NULL);
 		}
 	}

@@ -12,21 +12,15 @@
 
 #include <philo.h>
 
-void	semaphore_write(t_data *data, char *str)
-{
-	sem_wait(data->write_lock);
-	if (get_game(data, 0) == 1)
-	{
-		sem_post(data->write_lock);
-		return ;
-	}
-	printf("%zu\t%s\n", (get_current_time() - data->timestamp), str);
-	sem_post(data->write_lock);
-}
 void	ft_mutex_write(t_philo *p, char *str)
 {
 	sem_wait(p->data->write_lock);
-	printf("[%zu]\t%d\t%s\n", (get_current_time() - p->birthday), p->id, str);
+	if (get_game(p->data, 0) == 1 && str[0] != 'd')
+	{
+		sem_post(p->data->write_lock);
+		return ;
+	}
+	printf("[%zu] %d %s\n", (get_current_time() - p->birthday), p->id, str);
 	sem_post(p->data->write_lock);
 }
 

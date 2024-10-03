@@ -13,8 +13,6 @@
 #include <philo.h>
 
 static void	free_philos(t_data *data);
-static void	join_threads(t_data *data);
-
 // error is used to print an OPTIONAL message error
 //	for example during parsing
 // Free all philosophers
@@ -27,9 +25,8 @@ void	*free_all(t_data *data, char *error)
         if (data->first_philo)
         {
             free_philos(data);
-			join_threads(data);
         }
-        if (data->write_lock)
+        if (data->write_lock)//da risolvere tutti
             sem_close(data->write_lock);
         if (data->game_stop)
             sem_close(data->game_stop);
@@ -66,7 +63,6 @@ static void	free_philos(t_data *data)
 	if (!data->first_philo)
 		return ;
 	philo_tmp = data->first_philo;
-	free(data->forks);
 	while (i < data->number_of_philosophers)
 	{
 		data->first_philo = philo_tmp->right_philo;
@@ -78,18 +74,3 @@ static void	free_philos(t_data *data)
 		i++;
 	}
 }
-
-static void	join_threads(t_data *data)
-{
-	t_philo	*philo_tmp;
-	int		i;
-
-	philo_tmp = data->first_philo;
-	i = 0;
-	while (i < data->number_of_philosophers)
-	{
-		pthread_join(philo_tmp->game_stop, NULL);
-		philo_tmp = philo_tmp->right_philo;
-		i++;
-	}
-}//waitpid
